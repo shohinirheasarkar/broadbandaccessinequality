@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Broadband Access Inequality</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- TopoJSON -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+
+    <script defer src="script.js"></script>
+
+    <style>
+        #top-states-list::-webkit-scrollbar,
+        #bottom-states-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #top-states-list::-webkit-scrollbar-thumb,
+        #bottom-states-list::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .state-row {
+            transition: all 0.2s ease;
+        }
+
+        .state-row:hover {
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+    <!-- INTRO -->
+    <section class="scroll-section min-h-screen flex items-center bg-white">
+        <div class="max-w-4xl mx-auto px-6 opacity-0 translate-y-8 transition-all duration-700">
+
+            <div class="relative w-full h-[60vh] mb-12">
+                <img src="broadband.jpg"
+                     class="absolute inset-0 w-full h-full object-cover"
+                     alt="Internet infrastructure" />
+            </div>
+
+            <h1 class="text-5xl font-bold mb-6">
+                Who Has Access to the Internet?
+            </h1>
+
+            <p class="text-xl text-slate-600">
+                As we discussed in class, many people describe broadband internet as a basic utility. 
+                It is essential for work, education, healthcare, and civic participation. Yet access to reliable,
+                and high-speed internet varies significantly across income levels and geographic
+                regions in the United States. These disparities, commonly referred to as the
+                <em>digital divide</em>, reflect inequalities in which communities get infrastructure
+                investment, and how that affects their daily lives.
+            </p>
+
+            <p class="text-sm text-slate-400 mt-4">
+                Source: U.S. Census Bureau, American Community Survey (ACS) 2023; National
+                Telecommunications and Information Administration (NTIA)
+            </p>
+        </div>
+    </section>
+
+    <!-- GEOGRAPHY -->
+    <section class="scroll-section py-24 bg-slate-50">
+        <div class="max-w-4xl mx-auto px-6 opacity-0 translate-y-8 transition-all duration-700">
+            <h2 class="text-4xl font-semibold mb-6">
+                Geography Shapes Connectivity
+            </h2>
+
+            <p class="text-lg text-slate-600">
+                Geography plays a central role in determining broadband access. Rural and
+                sparsely populated regions face higher per-household infrastructure costs,
+                making private investment less profitable. Additionally, despite bills being passed
+                to help combat this, only the bare minimum is done to provide internet access. As a result, 
+                residents in these areas are more likely to rely on slower connections or lack access altogether,
+                even when broadband service is technically available elsewhere in the state.
+            </p>
+
+            <p class="text-sm text-slate-400 mt-4">
+                Source: Federal Communications Commission (FCC) Broadband Deployment Reports;
+                NTIA Indicators of Broadband Need
+            </p>
+        </div>
+    </section>
+
+    <!-- DUAL MAPS -->
+    <section class="scroll-section min-h-screen flex items-center bg-white">
+        <div class="max-w-6xl mx-auto px-6 opacity-0 translate-y-8 transition-all duration-700">
+
+            <h2 class="text-4xl font-semibold mb-2">A Tale of Two Maps</h2>
+
+            <p class="text-lg text-slate-600 mb-10">
+                Comparing population density with broadband access reveals the geographic
+                aspect of the digital divide. Physical location continues to shape who benefits 
+                from digital infrastructure.
+            </p>
+
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+
+                <div class="lg:w-1/2">
+                    <div class="bg-slate-50 p-4 rounded-t-xl border-b">
+                        <h3 class="text-xl font-medium">Population Density by State</h3>
+                        <p class="text-sm text-slate-500">Residents per square kilometer</p>
+                    </div>
+                    <div id="map-density" class="w-full h-96 rounded-b-xl"></div>
+                    <div class="legend-density mt-4"></div>
+                </div>
+
+                <div class="lg:w-1/2">
+                    <div class="bg-slate-50 p-4 rounded-t-xl border-b">
+                        <h3 class="text-xl font-medium">Broadband Access by State</h3>
+                        <p class="text-sm text-slate-500">% of households with a subscription</p>
+                    </div>
+                    <div id="map-access" class="w-full h-96 rounded-b-xl"></div>
+                    <div class="legend-access mt-4"></div>
+                </div>
+            </div>
+
+            <p class="text-sm text-slate-400 mt-10 text-center max-w-3xl mx-auto">
+                Population density is calculated using 2020 Census land area and 2023
+                population estimates. Broadband access reflects the percentage of households
+                reporting a broadband internet subscription in the 2023 American Community
+                Survey (ACS Table S2801).
+            </p>
+
+            <p class="text-xs text-slate-400 mt-3 text-center">
+                Sources: U.S. Census Bureau; American Community Survey (ACS) 2023
+            </p>
+        </div>
+    </section>
+
+    <!-- SCATTER -->
+    <section class="scroll-section min-h-screen flex items-center bg-slate-50">
+        <div class="max-w-6xl mx-auto px-6 py-20 opacity-0 translate-y-8 transition-all duration-700">
+
+            <h2 class="text-4xl font-semibold mb-6 text-center">
+                The Density–Access Connection
+            </h2>
+
+            <p class="text-lg text-slate-600 mb-10 text-center max-w-3xl mx-auto">
+                Each point represents a U.S. state, plotted by population density and broadband
+                subscription rate. While denser states tend to have higher levels of access,
+                the relationship is far from perfect. Several low-density states outperform
+                expectations, while some relatively dense states lag behind. This highlights the
+                role of policy, market competition, and affordability.
+            </p>
+
+            <div id="scatter-plot"
+                 class="w-full bg-white rounded-xl shadow-lg p-8"></div>
+
+            <p class="text-sm text-slate-400 mt-8 text-center">
+                Population density is shown on a logarithmic scale to visualize the wide range
+                of values across states.
+            </p>
+        </div>
+    </section>
+
+    <!-- INCOME -->
+    <section class="scroll-section py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-6 opacity-0 translate-y-8 transition-all duration-700">
+
+            <h2 class="text-4xl font-semibold mb-6">
+                Income and Broadband Access
+            </h2>
+
+            <p class="text-lg text-slate-600 mb-10 max-w-3xl">
+                Household income is one of the strongest predictors of broadband adoption.
+                Even when high-speed internet is available, lower-income households are less
+                likely to subscribe due to cost barriers. This affordability gap means that
+                access disparities persist not only between rural and urban areas, but also
+                within cities and suburbs themselves.
+            </p>
+
+            <p class="text-sm text-slate-400 mb-6">
+                Source: American Community Survey (ACS) 2023, Tables S1901 and S2801
+            </p>
+
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+
+                <div class="lg:w-1/2">
+                    <div class="bg-slate-50 p-4 rounded-t-xl border-b">
+                        <h3 class="text-xl font-medium">Median Household Income</h3>
+                        <p class="text-sm text-slate-500">ACS 2023 (Inflation-adjusted)</p>
+                    </div>
+                    <div id="map-income" class="w-full h-96 rounded-b-xl"></div>
+                    <div class="legend-income mt-4"></div>
+                </div>
+
+                <div class="lg:w-1/2">
+                    <div class="bg-slate-50 p-4 rounded-t-xl border-b">
+                        <h3 class="text-xl font-medium">Broadband Subscription Rate</h3>
+                        <p class="text-sm text-slate-500">% of households per state</p>
+                    </div>
+                    <div id="map-access-2" class="w-full h-96 rounded-b-xl"></div>
+                    <div class="legend-access-2 mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RANKINGS -->
+        <div class="mt-16 pt-16 border-t border-slate-100">
+            <h3 class="text-3xl font-semibold mb-6 text-center">Explore State Rankings</h3>
+
+            <div class="max-w-md mx-auto mb-10">
+                <div class="relative">
+                    <input type="text" id="state-search"
+                           placeholder="Search for a state (e.g. Maryland)..."
+                           class="w-full px-5 py-3 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                    <span class="absolute right-4 top-3.5 text-slate-400">🔍</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <div class="bg-green-50 p-6 rounded-xl border border-green-100">
+                    <h4 class="text-green-800 font-bold mb-4 flex justify-between items-center">
+                        <span>Highest Access</span>
+                        <span class="text-xs font-normal opacity-70">Scroll to explore</span>
+                    </h4>
+                    <div id="top-states-list"
+                         class="space-y-3 overflow-y-auto pr-2"
+                         style="max-height: 400px;"></div>
+                </div>
+
+                <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                    <h4 class="text-red-800 font-bold mb-4 flex justify-between items-center">
+                        <span>Lowest Access</span>
+                        <span class="text-xs font-normal opacity-70">Scroll to explore</span>
+                    </h4>
+                    <div id="bottom-states-list"
+                         class="space-y-3 overflow-y-auto pr-2"
+                         style="max-height: 400px;"></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section class="scroll-section min-h-screen flex items-center bg-slate-900 text-white">
+        <div class="max-w-4xl mx-auto px-6 opacity-0 translate-y-8 transition-all duration-700">
+
+            <h2 class="text-4xl font-semibold mb-6">
+                Why This Gap Matters
+            </h2>
+
+            <p class="text-lg text-slate-300 mb-6">
+                Unequal broadband access shapes who can fully participate in modern society.
+                Students without reliable internet face disadvantages in school, workers lose
+                access to remote employment opportunities, patients struggle to use telehealth
+                services, and communities are left out of civic life.
+            </p>
+
+            <p class="text-lg text-slate-300 mb-6">
+                As governments invest billions of dollars in broadband expansion, understanding
+                where gaps persist and what corporate motivations lie behind these gaps, is essential. 
+                Data-driven approaches can help ensure that new infrastructure investments reach the 
+                communities that need them most, rather than reinforcing existing inequalities.
+            </p>
+
+            <p class="text-sm text-slate-400">
+                Sources: National Telecommunications and Information Administration (NTIA);
+                Federal Communications Commission (FCC); U.S. Census Bureau, American Community
+                Survey
+            </p>
+        </div>
+    </section>
+
+    <!-- SOURCES -->
+    <section class="py-24 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-3xl font-semibold mb-6">Data Sources</h2>
+            <ul class="text-slate-600 space-y-2 list-disc list-inside">
+                <li>U.S. Census Bureau, American Community Survey (ACS) 2023 — Tables S1901, S2801</li>
+                <li>Federal Communications Commission (FCC) Broadband Deployment Reports</li>
+                <li>National Telecommunications and Information Administration (NTIA), Indicators of Broadband Need</li>
+            </ul>
+        </div>
+    </section>
+
+</body>
+</html>
